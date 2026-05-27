@@ -4,18 +4,18 @@ INSERT INTO doctor (doctor_id, name, department, specialty, password_hash) VALUE
     ('D003', '王建華醫師', '復健科', '運動傷害、脊椎復健', '$2a$10$4fZBPZq1NJmqW5MUgOUsqukV6OiTJutAKR/WbiFiQ6PRTjFbNsMFy'),
     ('D004', '李美玲醫師', '小兒科', '兒童感冒、疫苗接種',  '$2a$10$ZlsUgEo2MOm0RYxwcP55qukrjipEXYNKyyRfdIKkOEv7RpuXEPhxK'),
     ('D005', '張雅筑醫師', '身心科', '焦慮、失眠、情緒調適', '$2a$10$XsgY9Cmk7PqJ2pve2k4xwuTnV/hakC6LOGJqicQyjH.wDiM7PQhWa')
-ON CONFLICT (doctor_id) DO NOTHING
+ON CONFLICT (doctor_id) DO NOTHING;
 
 INSERT INTO patient (chart_no, name, gender, birth_date, phone) VALUES
     ('TEST00001', '病患甲', '男', '1985-03-15', '0912-345-678'),
     ('TEST00002', '王小明', '男', '1990-07-22', '0923-456-789'),
     ('TEST00003', '李小華', '女', '1988-11-30', '0934-567-890')
-ON CONFLICT (doctor_id) DO NOTHING
+ON CONFLICT (doctor_id) DO NOTHING;
 
 INSERT INTO appointment (appt_id, chart_no, doctor_id, appt_date, time_slot, status) VALUES
     (1, 'TEST00001', 'D001', '2026-05-01', 'AM', 'BOOKED'),
     (2, 'TEST00002', 'D002', '2026-05-01', 'AM', 'BOOKED'),
     (3, 'TEST00003', 'D003', '2026-05-02', 'PM', 'BOOKED')
-ON CONFLICT (doctor_id) DO NOTHING
+ON CONFLICT (doctor_id) DO NOTHING;
 
 SELECT setval(pg_get_serial_sequence('appointment', 'appt_id'), COALESCE((SELECT MAX(appt_id) FROM appointment), 0) + 1, false);
