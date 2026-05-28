@@ -10,12 +10,12 @@ INSERT INTO patient (chart_no, name, gender, birth_date, phone) VALUES
     ('TEST00001', '病患甲', '男', '1985-03-15', '0912-345-678'),
     ('TEST00002', '王小明', '男', '1990-07-22', '0923-456-789'),
     ('TEST00003', '李小華', '女', '1988-11-30', '0934-567-890')
-ON CONFLICT (doctor_id) DO NOTHING;
+ON CONFLICT (chart_no) DO NOTHING;
 
 INSERT INTO appointment (appt_id, chart_no, doctor_id, appt_date, time_slot, status) VALUES
     (1, 'TEST00001', 'D001', '2026-05-01', 'AM', 'BOOKED'),
     (2, 'TEST00002', 'D002', '2026-05-01', 'AM', 'BOOKED'),
     (3, 'TEST00003', 'D003', '2026-05-02', 'PM', 'BOOKED')
-ON CONFLICT (doctor_id) DO NOTHING;
+ON CONFLICT (appt_id) DO NOTHING;
 
 SELECT setval(pg_get_serial_sequence('appointment', 'appt_id'), COALESCE((SELECT MAX(appt_id) FROM appointment), 0) + 1, false);
