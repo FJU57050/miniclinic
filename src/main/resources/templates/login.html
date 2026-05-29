@@ -17,6 +17,7 @@
     </head>
     <body>
         <h1>醫師登入</h1>
+        <div class="alert-success" th:if="${successMessage}" th:text="${successMessage}"></div>
         <div class="alert" th:if="${errorMessage}" th:text="${errorMessage}"></div>
         <form th:action="@{/login}" th:object="${loginForm}" method="post">
             <div class="field">

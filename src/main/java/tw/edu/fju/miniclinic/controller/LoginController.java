@@ -10,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 public class LoginController {
@@ -17,7 +18,10 @@ public class LoginController {
     private DoctorRepository doctorRepo;
 
     @GetMapping("/login")
-    public String loginForm(Model model) {
+    public String loginForm(HttpSession session, Model model) {
+        if (session.getAttribute("loggedInDoctorId") != null) {
+            return "redirect:/dashboard";
+        }
         if (!model.containsAttribute("loginForm")) model.addAttribute("loginForm", new LoginForm());
         return "login";
     }
@@ -31,7 +35,13 @@ public class LoginController {
 
         if (result.hasErrors()) return "login";
 
-        Doctor doctor = doctorRepo.findById(form.getDoctorId()).orElse(null);
+        String doctorId = form.getDoctorId();
+        if (doctorId == null) {
+            model.addAttribute("errorMessage", "醫師編號或密碼錯誤");
+            return "login";
+        }
+
+        Doctor doctor = doctorRepo.findById(doctorId).orElse(null);
 
         if (doctor == null || doctor.getPasswordHash() == null || !BCrypt.checkpw(form.getPassword(), doctor.getPasswordHash())) {
             model.addAttribute("errorMessage", "醫師編號或密碼錯誤");
@@ -64,9 +74,16 @@ public class LoginController {
             @Valid @ModelAttribute("passwordChangeForm") PasswordChangeForm form,
             BindingResult result,
             HttpSession session,
-            Model model) {
+            Model model,
+            RedirectAttributes redirectAttributes) {
 
-        Doctor doctor = doctorRepo.findById((String) session.getAttribute("loggedInDoctorId")).orElse(null);
+        String loggedInDoctorId = (String) session.getAttribute("loggedInDoctorId");
+        if (loggedInDoctorId == null) {
+            session.invalidate();
+            return "redirect:/login";
+        }
+
+        Doctor doctor = doctorRepo.findById(loggedInDoctorId).orElse(null);
 
         if (doctor == null) {
             session.invalidate();
@@ -89,9 +106,9 @@ public class LoginController {
         doctor.setPasswordHash(BCrypt.hashpw(form.getNewPassword(), BCrypt.gensalt()));
         doctorRepo.save(doctor);
 
-        model.addAttribute("passwordChangeForm", new PasswordChangeForm());
-        model.addAttribute("successMessage", "密碼已更新");
-        return "password";
+        session.invalidate();
+        redirectAttributes.addFlashAttribute("successMessage", "密碼已更新，請重新登入。");
+        return "redirect:/login";
     }
 
     @PostMapping("/logout")
