@@ -5,7 +5,7 @@
 
 ## 線上 Demo
 
-（還沒有）
+[由 Render 部署](https://miniclinic-fju57050.onrender.com)
 
 ## 技術棧
 
