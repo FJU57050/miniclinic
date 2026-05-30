@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -45,5 +46,20 @@ public class StatsController {
         model.addAttribute("appointmentsByDepartment", appointmentsByDepartment);
 
         return "stats";
+    }
+
+    @GetMapping("/api/stats")
+    @ResponseBody
+    public StatsResponse apiStats() {
+        int totalDoctors = Math.toIntExact(doctorRepo.count());
+        int totalPatients = Math.toIntExact(patientRepo.count());
+        int totalAppointments = Math.toIntExact(appointmentRepo.count());
+        Map<String, Long> byStatus = Map.of(
+                "BOOKED", appointmentRepo.countByStatus("BOOKED"),
+                "COMPLETED", appointmentRepo.countByStatus("COMPLETED"),
+                "CANCELLED", appointmentRepo.countByStatus("CANCELLED")
+        );
+
+        return new StatsResponse(totalDoctors, totalPatients, totalAppointments, byStatus);
     }
 }
