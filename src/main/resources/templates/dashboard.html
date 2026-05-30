@@ -17,8 +17,10 @@
         .status-BOOKED    { color: #F59E0B; font-weight: bold; }
         .status-COMPLETED { color: #10B981; font-weight: bold; }
         .status-CANCELLED { color: #94A3B8; }
-        .cancel-button { background: #DC2626; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; }
+        .cancel-button { background: #DC2626; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; margin-right: 8px; }
         .cancel-button:hover { background: #B91C1C; }
+        .complete-button { background: #10B981; color: white; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; }
+        .complete-button:hover { background: #059669; }
     </style>
 </head>
 <body>
@@ -61,6 +63,13 @@
                         th:attr="onclick=|cancelAppointment(${appt.apptId})|">
                         取消
                     </button>
+                    <button
+                        th:if="${appt.status == 'BOOKED'}"
+                        class="complete-button"
+                        type="button"
+                        th:attr="onclick=|completeAppointment(${appt.apptId})|">
+                        看診完成
+                    </button>
                 </td>
             </tr>
         </tbody>
@@ -92,7 +101,32 @@
                 return;
             }
 
-            window.alert("取消掛號失敗，請稍後再試。");
+            window.alert("取消掛號失敗，請稍後再試。" );
+        }
+
+        async function completeAppointment(apptId) {
+            const response = await fetch(`/api/appointments/${apptId}/status`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "COMPLETED" })
+            });
+
+            if (response.ok) {
+                window.location.reload();
+                return;
+            }
+
+            if (response.status === 401) {
+                window.location.href = "/login";
+                return;
+            }
+
+            if (response.status === 403) {
+                window.alert("你只能更新自己的掛號狀態。" );
+                return;
+            }
+
+            window.alert("更新狀態失敗，請稍後再試。" );
         }
     </script>
 </body>
